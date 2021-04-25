@@ -17,8 +17,6 @@ from sklearn.model_selection import train_test_split
 # Constants
 C = 3 # Number of classes
 F = 4 # Number of features
-testsize = 20
-trainingsize = 30
 
 # Parameters for linear classifier
 alpha = 0.01
@@ -29,10 +27,11 @@ def load_data():
     data = datasets.load_iris()['data']
     return data
 
+# Split data into the three classes
 def data_classes(irisdata):
-    class1 = data[0:50]
-    class2 = data[50:100]
-    class3 = data[100:150]
+    class1 = irisdata[0:50]
+    class2 = irisdata[50:100]
+    class3 = irisdata[100:150]
     return class1, class2, class3
 
 # Split data into training and test sets
@@ -40,10 +39,28 @@ def data_split(class_n, testsize, trainingsize):
     train, test = train_test_split(class_n, test_size=testsize, train_size=trainingsize, random_state=0, shuffle=False)
     return train, test
 
-def linear_classifier(data, testsize, trainingsize, alpha, iterations):
-    
-
+# Sigmoid function
 def sigmoid(x):
     return 1/(1+np.exp(-x))
 
+# Train a linear classifier
+def linear_classifier(irisdata, testsize, trainingsize, alpha, iterations):
+    # Splitting the data into the three classes
+    class1, class2, class3 = data_classes(irisdata)
+
+    # Splitting the three data sets into training and test sets
+    train1, test1 = data_split(class1, testsize, trainingsize)
+    train2, test2 = data_split(class2, testsize, trainingsize)
+    train3, test3 = data_split(class3, testsize, trainingsize)
+
+    # Creating targets for the classes
+    target1 = np.array([1], [0], [0])
+    target2 = np.array([0], [1], [0])
+    target3 = np.array([0], [0], [1])
+    targets = [target1, target2, target3]
+
+    return 0
+
 def main():
+    data = load_data()
+    return 0
