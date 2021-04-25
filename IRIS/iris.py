@@ -17,22 +17,33 @@ from sklearn.model_selection import train_test_split
 # Constants
 C = 3 # Number of classes
 F = 4 # Number of features
+testsize = 20
+trainingsize = 30
 
-# Load data
-data = datasets.load_iris()['data']
-class1 = data[0:50]
-print(class1)
-class2 = data[50:100]
-class3 = data[100:150]
-classes = [class1, class2, class3]
-
-# Split data into training and test sets
-train1_1, test1_1 = train_test_split(class1, test_size=20, train_size=30, random_state=0, shuffle=False)
-train2_1, test2_1 = train_test_split(class2, test_size=20, train_size=30, random_state=0, shuffle=False)
-train3_1, test3_1 = train_test_split(class3, test_size=20, train_size=30, random_state=0, shuffle=False)
-print(train1_1)
 # Parameters for linear classifier
 alpha = 0.01
 iterations = 2000
 
-#def linear_classifier()
+# Load data
+def load_data():
+    data = datasets.load_iris()['data']
+    return data
+
+def data_classes(irisdata):
+    class1 = data[0:50]
+    class2 = data[50:100]
+    class3 = data[100:150]
+    return class1, class2, class3
+
+# Split data into training and test sets
+def data_split(class_n, testsize, trainingsize):
+    train, test = train_test_split(class_n, test_size=testsize, train_size=trainingsize, random_state=0, shuffle=False)
+    return train, test
+
+def linear_classifier(data, testsize, trainingsize, alpha, iterations):
+    
+
+def sigmoid(x):
+    return 1/(1+np.exp(-x))
+
+def main():
