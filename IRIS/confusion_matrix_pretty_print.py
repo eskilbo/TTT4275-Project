@@ -124,7 +124,7 @@ def insert_totals(df_cm):
     #print ('\ndf_cm:\n', df_cm, '\n\b\n')
 #
 
-def pretty_plot_confusion_matrix(df_cm, title='Confusion matrix', annot=True, cmap="Oranges", fmt='.2f', fz=11,
+def pretty_plot_confusion_matrix(df_cm, title='Confusion matrix', annot=True, cmap="Oranges", fmt='.2f', fz=14,
       lw=0.5, cbar=False, figsize=[8,8], show_null_values=0, pred_val_axis='y'):
     """
       print conf matrix with default layout (like matlab)
