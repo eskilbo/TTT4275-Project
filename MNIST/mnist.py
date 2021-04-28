@@ -35,52 +35,33 @@ def euclid_distance(img1, img2):
     return np.sum(diff_image(img1, img2))
 
 def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, N_TRAIN, N_TEST):
-    chunks = 1
-    train_size = N_TRAIN//chunks
-    test_size = N_TEST//chunks
-    correct_pred = []
-    failed_pred = []
-    predicted = np.zeros((10,1))
-    actual = np.zeros((10,1))
+    correct_pred = [] # Array of set of indeces of correct predictions
+    failed_pred = [] # Array of set of indeces of incorrect predictions
     confusion_matrix = np.zeros((10,10),dtype=int)
     start = time.time()
-    for chunk in range(chunks):
-        training_img = train_img[chunk*train_size:(chunk+1)*train_size]
-        training_lab = train_labels[chunk*train_size:(chunk+1)*train_size]
-        testing_img = test_img[chunk*test_size:(chunk+1)*test_size]
-        testing_lab = test_labels[chunk*test_size:(chunk+1)*test_size]
-        #print(f"CHUNK {chunk+1}/{chunks}")
-        for i in range(test_size):
-            print(f"Test image {i+1}/10000")
-            actual[testing_lab[i]] += 1
-            prediction = 0
-            min = 65025*28*28*2
-            pred_img_index = 0
-            for j in range(train_size):
-                d = euclid_distance(testing_img[i], training_img[j])
-                if d < min:
-                    min = d
-                    pred_img_index = j
-                    prediction = training_lab[j]
-            if prediction == testing_lab[i]:
-                predicted[prediction] += 1
-                correct_pred.append([i, pred_img_index])
-                confusion_matrix[testing_lab[i]][testing_lab[i]] += 1
-            else:
-                confusion_matrix[testing_lab[i]][prediction] += 1
-                failed_pred.append([i, pred_img_index])
-            
+    # Iterating through every test image
+    for i in range(N_TEST):
+        prediction = 0
+        pred_img_index = 0
+        min = 65025*28*28*2
+        # Comparing distance of test image to every training image
+        for j in range(N_TRAIN):
+            d = euclid_distance(test_img[i], train_img[j])
+            if d < min:
+                min = d
+                pred_img_index = j
+                prediction = train_labels[j]
+        if prediction == test_labels[i]:
+            correct_pred.append([i, pred_img_index])
+            confusion_matrix[test_lab[i]][test_labels[i]] += 1
+        else:
+            confusion_matrix[test_labels[i]][prediction] += 1
+            failed_pred.append([i, pred_img_index])
     end = time.time()
     print(f"Runtime of program is {(end-start)/60} minutes.")
-    print(f"actual: {actual}\n\n predicted correctly: {predicted}")
-    print(confusion_matrix)
-    np.save("pred_correct.npy", np.array(correct_pred))
-    np.save("pred_failed.npy", np.array(failed_pred))
-    np.save("confusionmat.npy", confusion_matrix)
     df_cm = DataFrame(confusion_matrix, index=["0","1","2","3","4","5","6","7","8","9"], columns=["0","1","2","3","4","5","6","7","8","9"])
     pretty_plot_confusion_matrix(df_cm,title='Confusion matrix - 1NN Classifier without clustering - 10000 test 60000 train',cmap="Oranges",pred_val_axis='x')
     return 
-
 
 def main():
     N_TRAIN = 60000
