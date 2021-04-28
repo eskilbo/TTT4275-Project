@@ -53,7 +53,7 @@ def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, 
                 prediction = train_labels[j]
         if prediction == test_labels[i]:
             correct_pred.append([i, pred_img_index])
-            confusion_matrix[test_lab[i]][test_labels[i]] += 1
+            confusion_matrix[test_labels[i]][test_labels[i]] += 1
         else:
             confusion_matrix[test_labels[i]][prediction] += 1
             failed_pred.append([i, pred_img_index])
