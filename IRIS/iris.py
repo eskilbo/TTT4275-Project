@@ -6,7 +6,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from pandas import DataFrame
 import matplotlib.pyplot as plt
-
 from confusion_matrix_pretty_print import _test_cm, pretty_plot_confusion_matrix
 
 # Tasks:
@@ -79,10 +78,10 @@ def get_mse_derivative(train,n_feat,g_vec,target):
     return dmse
 
 
-def train_linear_classifier(data,W,iterations,step_size,n_batch):
+def train_linear_classifier(data,W,iterations,step_size,train_size):
     loss = np.zeros([iterations,1],dtype=float)
     for i in range(iterations):
-        g_vec = forward_propagate(data, W,n_batch)
+        g_vec = forward_propagate(data, W,train_size)
         dmse = get_mse_derivative(data,len(data[0]),g_vec,target)
         loss[i] = mean_squared_error(g_vec,target)
         W = W - step_size*dmse
@@ -106,7 +105,7 @@ def plot_alphas():
     alphas = [0.05,0.01,0.005]
     for a in alphas:
         W = np.zeros([N_CLASS, N_FEAT+1],dtype=float)
-        W,loss = train_linear_classifier(W,N_ITER,a,N_BATCH)
+        W,loss = train_linear_classifier(data,W,N_ITER,a,train_size)
         #plot loss
         plt.plot(np.arange(N_ITER),loss,label="alpha= "+str(a))
         plt.legend()
@@ -161,7 +160,7 @@ def main():
     W = np.zeros([N_CLASS, N_FEAT+1],dtype=float)
     
     # Train linear classifier
-    W, loss = train_linear_classifier(train,W,N_ITER,alpha,N_ITER,train_size,test_size)
+    W, loss = train_linear_classifier(train,W,N_ITER,alpha,train_size)
     
     # Compute confusion matrices
     confusion_train = get_confusion_matrix(W,train,N_CLASS,train_size)
