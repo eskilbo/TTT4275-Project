@@ -2,9 +2,11 @@ from logging import logProcesses
 from os import PRIO_PGRP
 import numpy as np
 from numpy.core.fromnumeric import argmax, reshape, transpose
+from sklearn import cluster
 from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from sklearn.cluster import KMeans
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -63,11 +65,52 @@ def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, 
     pretty_plot_confusion_matrix(df_cm,title='Confusion matrix - 1NN Classifier without clustering - 10000 test 60000 train',cmap="Oranges",pred_val_axis='x')
     return 
 
+def clustering(data,data_lab, n_clusters):
+    N = 10
+    data_class_len = data.shape[0]//N
+
+    #sorting out classes from dataset
+    templates_by_class = []
+    for n in range(N):
+        t = []
+        for i,label in enumerate(data_lab):
+            if n == label:
+                t.append(data[i])
+        templates_by_class.append(t)
+
+    clusters = []
+    labels = []
+    for i in range(N):
+        part = templates_by_class[i]
+        kmeans = KMeans(n_clusters=n_clusters).fit(part)
+        clusters.append(kmeans.cluster_centers_)
+        labels.append([i]*n_clusters)
+
+
+    # flatten_list = [j for sub in labels for j in sub] 
+    cluster_img = np.array(clusters).flatten().reshape((n_clusters*N,data.shape[1]))
+    cluster_lab = np.array(labels,dtype=int).flatten().reshape(n_clusters*N,1)
+
+    np.save('cluster_img.npy',cluster_img)
+    np.save('cluster_lab.npy',cluster_lab)
+    return cluster_img, cluster_lab
+
+
 def main():
     N_TRAIN = 60000
     N_TEST = 10000
     train_img, train_labels, test_img, test_labels = load_data(N_TRAIN, N_TEST)
-    nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, N_TRAIN, N_TEST)
+    # cluster_img, cluster_lab = clustering(train_img,train_labels,64)
+    cluster_img = np.load('cluster_img.npy')
+    cluster_lab = np.load('cluster_lab.npy')
+
+    # plt.imshow(cluster_img[0].reshape((28,28)))
+    # plt.show()
+    # print(cluster_img.shape)
+
+    nearest_neighbor_classifier(cluster_img, cluster_lab, test_img, test_labels, 640, N_TEST)
+    # clustering(train_img,64)
+
     return
 
 if __name__=='__main__':
