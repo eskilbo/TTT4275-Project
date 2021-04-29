@@ -65,26 +65,19 @@ def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, 
     return
 
 def k_nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, N_TRAIN, N_TEST,K):
-    correct_pred = [] # Array of set of indeces of correct predictions
-    failed_pred = [] # Array of set of indeces of incorrect predictions
     confusion_matrix = np.zeros((10,10),dtype=int)
     start = time.time()
+
     # Iterating through every test image
     for i in range(N_TEST):
         prediction = 0
-        pred_img_index = 0
-        min = 65025*28*28*2
-        # Comparing distance of test image to every training image
         distance_vec = []
         for j in range(N_TRAIN):
             d = distance.euclidean(test_img[i], train_img[j])
             distance_vec.append(d)
-        prediction = get_majority_vote(distance_vec,train_labels,K)
         
-        if prediction == test_labels[i]:
-            correct_pred.append([i, pred_img_index])
-        else:
-            failed_pred.append([i, pred_img_index])
+        #Using k nearest clusters to get prediction
+        prediction = get_majority_vote(distance_vec,train_labels,K)
         confusion_matrix[test_labels[i]][prediction] += 1
     end = time.time()
     print(f"Runtime of program is {(end-start)/60} minutes.")
