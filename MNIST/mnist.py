@@ -70,7 +70,6 @@ def k_nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels
 
     # Iterating through every test image
     for i in range(N_TEST):
-        prediction = 0
         distance_vec = []
         for j in range(N_TRAIN):
             d = distance.euclidean(test_img[i], train_img[j])
