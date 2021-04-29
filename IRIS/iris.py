@@ -105,7 +105,7 @@ def plot_alphas():
     alphas = [0.05,0.01,0.005]
     for a in alphas:
         W = np.zeros([N_CLASS, N_FEAT+1],dtype=float)
-        W,loss = train_linear_classifier(data,W,N_ITER,a,train_size)
+        W,loss = train_linear_classifier(irisdata,W,N_ITER,a,train_size)
         #plot loss
         plt.plot(np.arange(N_ITER),loss,label="alpha= "+str(a))
         plt.legend()
@@ -160,7 +160,7 @@ def main():
     W = np.zeros([N_CLASS, N_FEAT+1],dtype=float)
     
     # Train linear classifier
-    W, loss = train_linear_classifier(train,W,N_ITER,alpha,train_size)
+    W, _ = train_linear_classifier(train,W,N_ITER,alpha,train_size)
     
     # Compute confusion matrices
     confusion_train = get_confusion_matrix(W,train,N_CLASS,train_size)
