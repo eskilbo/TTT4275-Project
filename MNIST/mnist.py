@@ -3,7 +3,6 @@ from os import PRIO_PGRP
 import numpy as np
 from numpy.core.fromnumeric import argmax, reshape, transpose
 from sklearn import cluster
-from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.cluster import KMeans
@@ -48,6 +47,7 @@ def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, 
         # Comparing distance of test image to every training image
         for j in range(N_TRAIN):
             d = distance.euclidean(test_img[i], train_img[j])
+            #d = euclid_distance(test_img[i], train_img[j])
             if d < min:
                 min = d
                 pred_img_index = j
@@ -110,12 +110,6 @@ def get_majority_vote(distances,labels,K):
 
     return cand_inx
 
-
-
-
-
-
-
 def clustering(data,data_lab, n_clusters):
     N = 10
     # Sorting out classes from dataset
@@ -145,19 +139,24 @@ def clustering(data,data_lab, n_clusters):
 def main():
     N_TRAIN = 60000
     N_TEST = 10000
+    K = 7
 
     # Load data 
     template_img, template_labels, test_img, test_labels = load_data(N_TRAIN, N_TEST)
     
-    # Run the clustering once, saves data into files
-    #template_img, template_labels = clustering(train_img,train_labels,64)
+    ### TASK 1 ###
+    nearest_neighbor_classifier(template_img, template_labels, test_img, test_labels, N_TRAIN, N_TEST)
     
+    ### TASK 2 ###
+    # Run the clustering once, saves data into files
+    cluster_img, cluster_labels = clustering(train_img,train_labels,64)
     # If already clustered, load the files instead of running the clustering
-    #template_img = np.load('cluster_img.npy')
-    #template_labels = np.load('cluster_lab.npy')
+    cluster_img = np.load('cluster_img.npy')
+    cluster_labels = np.load('cluster_lab.npy')
 
     # Run nearest neighbor classifier
-    nearest_neighbor_classifier(template_img, template_labels, test_img, test_labels, template_img.shape[0], N_TEST)
+    nearest_neighbor_classifier(cluster_img, cluster_labels, test_img, test_labels, cluster_img.shape[0], N_TEST)
+    k_nearest_neighbor_classifier(cluster_img, cluster_labels, test_img, test_labels, cluster_img.shape[0], N_TEST, K)
     return
 
 if __name__=='__main__':
