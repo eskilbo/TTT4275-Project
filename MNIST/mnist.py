@@ -7,6 +7,7 @@ from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.cluster import KMeans
+from scipy.spatial import distance
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -46,7 +47,6 @@ def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, 
         min = float('inf')
         # Comparing distance of test image to every training image
         for j in range(N_TRAIN):
-            #d = euclid_distance(test_img[i], train_img[j])
             d = distance.euclidean(test_img[i], train_img[j])
             if d < min:
                 min = d
@@ -61,8 +61,68 @@ def nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, 
     end = time.time()
     print(f"Runtime of program is {(end-start)/60} minutes.")
     df_cm = DataFrame(confusion_matrix, index=["0","1","2","3","4","5","6","7","8","9"], columns=["0","1","2","3","4","5","6","7","8","9"])
-    pretty_plot_confusion_matrix(df_cm,title='Confusion matrix - 1NN Classifier with clustering - 10000 test 640 clusters',cmap="Oranges",pred_val_axis='x')
-    return 
+    pretty_plot_confusion_matrix(df_cm,title='Confusion matrix - 1NN Classifier without clustering - 10000 test 60000 train',cmap="Oranges",pred_val_axis='x')
+    return
+
+def k_nearest_neighbor_classifier(train_img, train_labels, test_img, test_labels, N_TRAIN, N_TEST,K):
+    correct_pred = [] # Array of set of indeces of correct predictions
+    failed_pred = [] # Array of set of indeces of incorrect predictions
+    confusion_matrix = np.zeros((10,10),dtype=int)
+    start = time.time()
+    # Iterating through every test image
+    for i in range(N_TEST):
+        prediction = 0
+        pred_img_index = 0
+        min = 65025*28*28*2
+        # Comparing distance of test image to every training image
+        distance_vec = []
+        for j in range(N_TRAIN):
+            d = distance.euclidean(test_img[i], train_img[j])
+            distance_vec.append(d)
+        prediction = get_majority_vote(distance_vec,train_labels,K)
+        
+        if prediction == test_labels[i]:
+            correct_pred.append([i, pred_img_index])
+        else:
+            failed_pred.append([i, pred_img_index])
+        confusion_matrix[test_labels[i]][prediction] += 1
+    end = time.time()
+    print(f"Runtime of program is {(end-start)/60} minutes.")
+    df_cm = DataFrame(confusion_matrix, index=["0","1","2","3","4","5","6","7","8","9"], columns=["0","1","2","3","4","5","6","7","8","9"])
+    pretty_plot_confusion_matrix(df_cm,title='Confusion matrix - 7NN Classifier with clustering - 10000 test 640 clusters',cmap="Oranges",pred_val_axis='x')
+    return
+
+def get_majority_vote(distances,labels,K):
+
+    # Gathering votes for the K-nearest candidates
+    sorted_index_by_distance = np.argsort(np.array(distances),axis=0)
+    majority_vote = [0]*10
+    majority_index_value = [0]*10
+    for k in range(K):
+        majority_vote[int(labels[sorted_index_by_distance[k]])] += 1
+        majority_index_value[int(labels[sorted_index_by_distance[k]])] += k
+
+    # Selecting the candidate with highest number of votes
+    cand_inx = majority_vote.index(max(majority_vote))
+    cand_count = majority_vote[cand_inx]
+    cand_ival = majority_index_value[cand_inx]
+
+    #Handeling case where there is a tie in votes
+    for i in range(10):
+        inx = majority_vote[i:10].index(max(majority_vote[i:10]))
+        count = majority_vote[inx]
+        ival = majority_index_value[inx]
+        if ((count==cand_count) and (ival < cand_ival)):
+            cand_inx = inx
+            count_ival = ival
+
+    return cand_inx
+
+
+
+
+
+
 
 def clustering(data,data_lab, n_clusters):
     N = 10
